@@ -10,7 +10,7 @@ https://ieeexplore.ieee.org/document/9416456
 """
 import numpy as np
 import torch
-from AUIFNet import Encoder_Base,Encoder_Detail,Decoder
+from AUIFNet import Encoder_Base,Encoder_Detail,Decoder, Encoder_Medium
 import torch.nn.functional as F
 
 device='cuda'
@@ -40,6 +40,10 @@ def Test_fusion(img_test1,img_test2,addition_mode='Sum'):
     Encoder_Detail_Test.load_state_dict(torch.load(
             "Models\TCSVT_Encoder_Detail.model"
             ))
+    Encoder_Medium_Test = Encoder_Medium().to(device)
+    Encoder_Medium_Test.load_state_dict(torch.load(
+            "Models\TCSVT_Encoder_Medium.model"
+            ))
     Decoder_Test = Decoder().to(device)
     Decoder_Test.load_state_dict(torch.load(
             "Models\TCSVT_Decoder.model"
@@ -47,6 +51,7 @@ def Test_fusion(img_test1,img_test2,addition_mode='Sum'):
     
     Encoder_Base_Test.eval()
     Encoder_Detail_Test.eval()
+    Encoder_Medium_Test.eval()
     Decoder_Test.eval()
     
     img_test1 = np.array(img_test1, dtype='float32')/255# 将其转换为一个矩阵
@@ -63,20 +68,25 @@ def Test_fusion(img_test1,img_test2,addition_mode='Sum'):
         B_K_VIS,_,_=Encoder_Base_Test(img_test2)
         D_K_IR,_,_=Encoder_Detail_Test(img_test1)
         D_K_VIS,_,_=Encoder_Detail_Test(img_test2)
+        M_K_IR,_,_=Encoder_Medium_Test(img_test1)
+        M_K_VIS,_,_=Encoder_Medium_Test(img_test2)
         
     if addition_mode=='Sum':      
         F_b=(B_K_IR+B_K_VIS)
         F_d=(D_K_IR+D_K_VIS)
+        F_m=(M_K_IR+M_K_VIS)
 
     elif addition_mode=='Average':
         F_b=(B_K_IR+B_K_VIS)/2         
         F_d=(D_K_IR+D_K_VIS)/2
+        F_m=(M_K_IR+M_K_VIS)/2
 
     elif addition_mode=='l1_norm':
         F_b=l1_addition(B_K_IR,B_K_VIS)
         F_d=l1_addition(D_K_IR,D_K_VIS)
+        F_m=l1_addition(M_K_IR,M_K_VIS)
         
     with torch.no_grad():
-        Out = Decoder_Test(F_b,F_d)
+        Out = Decoder_Test(F_b,F_d,F_m)
      
     return output_img(Out) 

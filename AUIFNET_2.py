@@ -18,7 +18,7 @@ import kornia
 #定义初始化滤波 
 Laplace = kornia.filters.Laplacian(19)#高通滤波  
 Blur = kornia.filters.BoxBlur((11, 11))#低通滤波 
-Gaussian = kornia.filters.GaussianBlur2d(sigma=(0.5,0.5),kernel_size=(15,15)) 
+Gaussian = kornia.filters.GaussianBlur2d(sigma=(0.5,0.5),kernel_size=(5,5)) 
 # =============================================================================
 # 网络搭建
 # =============================================================================
@@ -78,7 +78,7 @@ class DCL(nn.Module):
     
 class MCL(nn.Module):
     def __init__(self):
-        super(MCL, self).__init__()
+        super(BCL, self).__init__()
         self.kernel = nn.Parameter(torch.randn(size=[64, 1, 3, 3]))
         self.zero_pad=nn.ReflectionPad2d(1)
         self.rest=nn.Sequential(
@@ -136,18 +136,18 @@ class Encoder_Detail(nn.Module):
     
 class Encoder_Medium(nn.Module):
     def __init__(self,size=img_size):
-        super(Encoder_Medium, self).__init__()
+        super(Encoder_Detail, self).__init__()
         self.numb=layer_numb
         self.conv2 = nn.ModuleList([DCL() for i in range(self.numb)])
     def forward(self,img):
-        img_laplace=Gaussian(img)
+        img_gaus=Gaussian(img)
         eta_list_detail=[]
         theta_list_detail=[]
         for layer in self.conv2:
-            img_laplace, img, eta, theta = layer(img_laplace,img)
+            img_gaus, img, eta, theta = layer(img_gaus,img)
             eta_list_detail.append(eta)
             theta_list_detail.append(theta)
-        return img_laplace,eta_list_detail,theta_list_detail    
+        return img_gaus,eta_list_detail,theta_list_detail    
 
 class Decoder(nn.Module):
     def __init__(self):
