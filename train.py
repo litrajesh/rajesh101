@@ -72,7 +72,8 @@ scheduler3 = torch.optim.lr_scheduler.MultiStepLR(
 MSELoss = nn.MSELoss()
 SmoothL1Loss=nn.SmoothL1Loss()
 L1Loss=nn.L1Loss()
-SSIMLoss = kornia.losses.SSIM(3, reduction='mean')
+
+SSIMLoss = kornia.losses.SSIMLoss(3, reduction='mean')
 
 # =============================================================================
 # Training

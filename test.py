@@ -47,4 +47,13 @@ for i in range(int(Test_Image_Number/2)):
         Test_IR = Image.open(test_data_path+'\IR'+str(i+1)+'.jpg') # infrared image
         Test_Vis = Image.open(test_data_path+'\VIS'+str(i+1)+'.jpg') # visible image
     Fusion_image=Test_fusion(Test_IR,Test_Vis)
-    imsave('.\Test_result\F'+str(i+1)+'.png',Fusion_image)
+if Fusion_image.dtype in [np.float32, np.float64]:
+    if Fusion_image.max() <= 1.0:
+        Fusion_image_uint8 = (Fusion_image * 255).astype(np.uint8)
+    else:
+        Fusion_image_uint8 = ((Fusion_image - Fusion_image.min()) / 
+                             (Fusion_image.max() - Fusion_image.min()) * 255).astype(np.uint8)
+else:
+    Fusion_image_uint8 = Fusion_image
+
+Image.fromarray(Fusion_image_uint8).save('.\Test_result\F'+str(i+1)+'.png')

@@ -14,9 +14,9 @@ https://ieeexplore.ieee.org/document/9416456
 # =============================================================================
 Train_data_choose='FLIR'
 if Train_data_choose=='FLIR':
-    train_data_path = '.\\Datasets\\Train_data_FLIR\\'
+    train_data_path = '.\Datasets\Train_data_FLIR\\'
     log_interval = 12
-    epochs = 80
+    epochs = 1
 
 train_path = '.\\Train_result\\'
 device = "cuda"
